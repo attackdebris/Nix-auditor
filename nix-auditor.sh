@@ -96,6 +96,18 @@ hostname >> $FILENAME
 echo "" >> $FILENAME
 echo Linux Distribution: >> $FILENAME
 echo =================== >> $FILENAME
+echo "" >> $FILENAME
+echo "Linux version currently in use:" >> $FILENAME
+cat /etc/issue >> $FILENAME
+if [ -f /usr/bin/lsb_release ] ; then
+	/usr/bin/lsb_release -dric | grep -v "No LSB" >> $FILENAME
+fi
+if [ -f /bin/lsb_release ] ; then
+	/bin/lsb_release -dric >> $FILENAME
+fi
+echo "" >> $FILENAME
+echo "Reference Linux support info:" >> $FILENAME
+echo ============================== >> $FILENAME
 echo "CentOS < 4 is End of Life (EoL), CentOS 4 EoL date: February 29th, 2012" >> $FILENAME
 echo "CentOS 5 EoL date: March 31st, 2017" >> $FILENAME 
 echo "https://wiki.centos.org/About/Product" >> $FILENAME
@@ -110,14 +122,6 @@ echo "" >> $FILENAME
 echo "Debian < 7.0 is EoL, Debian 7.0 EoL date: May 2018 (LTS)" >> $FILENAME
 echo "https://wiki.debian.org/DebianReleases" >> $FILENAME
 echo "" >> $FILENAME 
-cat /etc/issue >> $FILENAME
-if [ -f /usr/bin/lsb_release ] ; then
-	/usr/bin/lsb_release -dric | grep -v "No LSB" >> $FILENAME
-fi
-if [ -f /bin/lsb_release ] ; then
-	/bin/lsb_release -dric >> $FILENAME
-fi
-echo "" >> $FILENAME
 echo Kernel Version: >> $FILENAME
 echo ================ >> $FILENAME
 uname -a >> $FILENAME
