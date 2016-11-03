@@ -935,20 +935,20 @@ fi
 
 # Print result
 if [[ ${result} == "$SAFE_KERNEL" ]]; then
-    echo -e "${GREEN}Your kernel is ${RESET}$running_kernel${GREEN} which is NOT vulnerable.${RESET}"
+    echo -e "${GREEN}Your kernel is ${RESET}$running_kernel${GREEN} which is NOT vulnerable.${RESET}" >> $FILENAME
 elif [[ ${result} == "$SAFE_KPATCH" ]]; then
-    echo -e "Your kernel is $running_kernel which is normally vulnerable."
-    echo -e "${GREEN}However, you have kpatch ${RESET}$applied_kpatch${GREEN} applied, which fixes the vulnerability.${RESET}"
+    echo -e "Your kernel is $running_kernel which is normally vulnerable." >> $FILENAME
+    echo -e "${GREEN}However, you have kpatch ${RESET}$applied_kpatch${GREEN} applied, which fixes the vulnerability.${RESET}" >> $FILENAME
 elif [[ ${result} == "$MITIGATED" ]]; then
-    echo -e "${YELLOW}Your kernel is ${RESET}$running_kernel${YELLOW} which IS vulnerable.${RESET}"
-    echo -e "${YELLOW}You have a partial mitigation applied.${RESET}"
-    echo -e "This mitigation protects against most common attack vectors which are already exploited in the wild,"
-    echo -e "but does not protect against all possible attack vectors."
-    echo -e "Red Hat recommends that you update your kernel as soon as possible."
+    echo -e "${YELLOW}Your kernel is ${RESET}$running_kernel${YELLOW} which IS vulnerable.${RESET}" >> $FILENAME
+    echo -e "${YELLOW}You have a partial mitigation applied.${RESET}" >> $FILENAME
+    echo -e "This mitigation protects against most common attack vectors which are already exploited in the wild," >> $FILENAME
+    echo -e "but does not protect against all possible attack vectors." >> $FILENAME
+    echo -e "Red Hat recommends that you update your kernel as soon as possible." >> $FILENAME
 else
-    echo -e "${RED}Your kernel is ${RESET}$running_kernel${RED} which IS vulnerable.${RESET}"
-    echo -e "Red Hat recommends that you update your kernel. Alternatively, you can apply partial"
-    echo -e "mitigation described at https://access.redhat.com/security/vulnerabilities/2706661 ."
+    echo -e "${RED}Your kernel is ${RESET}$running_kernel${RED} which IS vulnerable.${RESET}" >> $FILENAME
+    echo -e "Red Hat recommends that you update your kernel. Alternatively, you can apply partial" >> $FILENAME
+    echo -e "mitigation described at https://access.redhat.com/security/vulnerabilities/2706661 ." >> $FILENAME
 fi
 echo "" >> $FILENAME
 echo ================================================================= >> $FILENAME
