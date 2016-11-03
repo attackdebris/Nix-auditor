@@ -1,10 +1,10 @@
 #!/bin/sh
 # Nix-auditor - A simple Ubuntu / Redhat / CentOS audit script (which may run on other Linux variants)
 # Nix-auditor should be run as root
-# v0.17 Matt Byrne - November 2011
+# v0.20 Matt Byrne - November 2016
 clear
 echo ===========================================================
-echo Nix-auditor v0.17 - Matt Byrne, November 2011
+echo Nix-auditor v0.20 - Matt Byrne, November 2016
 echo 
 echo A simple Ubuntu / Redhat / CentOS and Debian Audit Script
 echo ===========================================================
@@ -35,7 +35,7 @@ then
 fi
 clear
 echo "================================================================" | tee $FILENAME
-echo "Nix-auditor v0.16 Scan: Initiated `date`" | tee -a $FILENAME
+echo "Nix-auditor v0.20 Scan: Initiated `date`" | tee -a $FILENAME
 echo ""
 echo "A simple Ubuntu / Redhat / CentOS Audit Script" | tee -a $FILENAME
 echo "================================================================" | tee -a $FILENAME
@@ -96,9 +96,20 @@ hostname >> $FILENAME
 echo "" >> $FILENAME
 echo Linux Distribution: >> $FILENAME
 echo =================== >> $FILENAME
-echo "NOTE: For RHEL or CentOS Systems should be atleast CentOS 5.7 or RHEL 4" >> $FILENAME 
-echo "(although RHEL 3 has an Extended Life Cycle until 31/10/13)" >> $FILENAME
+echo "CentOS < 4 is End of Life (EoL), CentOS 4 EoL date: February 29th, 2012" >> $FILENAME
+echo "CentOS 5 EoL date: March 31st, 2017" >> $FILENAME 
+echo "https://wiki.centos.org/About/Product" >> $FILENAME
 echo "" >> $FILENAME
+echo "RHEL < 3 is EoL, RHEL 3 EoL date: January 30, 2014" >> $FILENAME
+echo "RHEL 4 EoL date: March 31, 2017" >> $FILENAME
+echo "https://access.redhat.com/support/policy/updates/errata" >> $FILENAME
+echo "" >> $FILENAME
+echo "Ubuntu < 12.04 LTS is EoL, Ubuntu 12.04 LTS EoL date: April 2017" >> $FILENAME
+echo "https://www.ubuntu.com/info/release-end-of-life" >> $FILENAME
+echo "" >> $FILENAME
+echo "Debian < 7.0 is EoL, Debian 7.0 EoL date: May 2018 (LTS)" >> $FILENAME
+echo "https://wiki.debian.org/DebianReleases" >> $FILENAME
+echo "" >> $FILENAME 
 cat /etc/issue >> $FILENAME
 if [ -f /usr/bin/lsb_release ] ; then
 	/usr/bin/lsb_release -dric | grep -v "No LSB" >> $FILENAME
@@ -107,7 +118,7 @@ if [ -f /bin/lsb_release ] ; then
 	/bin/lsb_release -dric >> $FILENAME
 fi
 echo "" >> $FILENAME
-echo Kernal Version: >> $FILENAME
+echo Kernel Version: >> $FILENAME
 echo ================ >> $FILENAME
 uname -a >> $FILENAME
 echo "" >> $FILENAME
@@ -169,6 +180,10 @@ echo "" >> $FILENAME
 echo Listing uid 0 accounts: >> $FILENAME
 echo ======================= >> $FILENAME
 awk -F: '{if ($3=="0") print$1}' /etc/passwd >> $FILENAME
+echo "" >> $FILENAME
+echo "List members of the wheel group (i.e. root users):" >> $FILENAME
+echo ========================================================== >> $FILENAME
+cat /etc/group | grep wheel >> $FILENAME
 echo "" >> $FILENAME
 echo "List Accounts with blank passwords (if any):" >> $FILENAME
 echo ============================================= >> $FILENAME
