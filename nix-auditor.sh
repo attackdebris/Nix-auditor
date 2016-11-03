@@ -308,6 +308,10 @@ if [ -f .files_tmp ] ; then
 	rm .files_tmp
 fi
 echo "" >> $FILENAME
+echo "Searching for DirtyCOW source or compiled exploit on the target system" >> $FILENAME
+for f in $(find /home/ -type f -size -300 2> /dev/null); do if [[ $(egrep "/proc/(self|%d)/(mem|maps)" "$f") != "" ]];then m=$(stat -c %y "$f"); echo "Contains DirtyCOW string: $f MOD_DATE: $m"; fi; done; >> $FILENAME
+#Credit=Neo23x0
+echo "" >> $FILENAME
 echo ================================================================= >> $FILENAME
 echo THIS IS THE END OF THE AUDIT FILE FOR HOST: `hostname`  >> $FILENAME
 echo ================================================================= >> $FILENAME
