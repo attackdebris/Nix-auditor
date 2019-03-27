@@ -1,10 +1,10 @@
 #!/bin/bash
 # Nix-auditor - A simple Ubuntu / Redhat / CentOS audit script (which may run on other Linux variants)
 # Nix-auditor should be run as root
-# v0.20 Matt Byrne - November 2016
+# v0.21 Matt Byrne - March 2019
 clear
 echo ===========================================================
-echo Nix-auditor v0.20 - Matt Byrne, November 2016
+echo Nix-auditor v0.21 - Matt Byrne, March 2019
 echo 
 echo A simple Ubuntu / Redhat / CentOS and Debian Audit Script
 echo ===========================================================
@@ -35,7 +35,7 @@ then
 fi
 clear
 echo "================================================================" | tee $FILENAME
-echo "Nix-auditor v0.20 Scan: Initiated `date`" | tee -a $FILENAME
+echo "Nix-auditor v0.21 Scan: Initiated `date`" | tee -a $FILENAME
 echo ""
 echo "A simple Ubuntu / Redhat / CentOS and Debian Audit Script" | tee -a $FILENAME
 echo "================================================================" | tee -a $FILENAME
@@ -91,14 +91,21 @@ echo ""
 echo "nix-auditor is now performing the standard checks, not long now...."
 echo "" >> $FILENAME
 echo Hostname: >> $FILENAME
-echo =========== >> $FILENAME
+echo ========= >> $FILENAME
 hostname >> $FILENAME
 echo "" >> $FILENAME
 echo Linux Distribution: >> $FILENAME
 echo =================== >> $FILENAME
 echo "" >> $FILENAME
-echo "Linux version currently in use:" >> $FILENAME
+echo "/etc/issue:" >> $FILENAME
 cat /etc/issue >> $FILENAME
+echo "" >> $FILENAME
+echo "/etc/system-release:" >> $FILENAME
+if [ -f /etc/system-release ] ;then
+        ls -l /etc/system-release >> $FILENAME
+fi
+echo "" >> $FILENAME
+echo "lsb_release:" >> $FILENAME
 if [ -f /usr/bin/lsb_release ] ; then
 	/usr/bin/lsb_release -dric | grep -v "No LSB" >> $FILENAME
 fi
@@ -107,38 +114,47 @@ if [ -f /bin/lsb_release ] ; then
 fi
 echo "" >> $FILENAME
 echo Kernel Version: >> $FILENAME
-echo ================ >> $FILENAME
+echo =============== >> $FILENAME
 uname -a >> $FILENAME
 echo "" >> $FILENAME
-echo "Reference Linux supported OS info:" >> $FILENAME
-echo =================================== >> $FILENAME
-echo "CentOS < 4 is End of Life (EoL), CentOS 4 EoL date: February 29th, 2012" >> $FILENAME
-echo "CentOS 5 EoL date: March 31st, 2017" >> $FILENAME 
+echo "Linux supported OS info [Reference Only]:" >> $FILENAME
+echo ========================================= >> $FILENAME
+echo "CentOS 5 EoL date: 31 March 2017" >> $FILENAME 
+echo "CentOS 6 EoL date: 30 Nov 2020" >> $FILENAME 
 echo "https://wiki.centos.org/About/Product" >> $FILENAME
 echo "" >> $FILENAME
-echo "RHEL < 3 is EoL, RHEL 3 EoL date: January 30, 2014" >> $FILENAME
-echo "RHEL 4 EoL date: March 31, 2017" >> $FILENAME
+echo "RHEL 4 EoL date: 31 March 2017" >> $FILENAME
+echo "RHEL 5 [Extended] EoL date: 30 Nov 2020" >> $FILENAME
 echo "https://access.redhat.com/support/policy/updates/errata" >> $FILENAME
 echo "" >> $FILENAME
-echo "Ubuntu < 12.04 LTS is EoL, Ubuntu 12.04 LTS EoL date: April 2017" >> $FILENAME
+echo "Ubuntu 14.04 LTS EoL date: 30 April 2019" >> $FILENAME
+echo "Ubuntu 16.04 LTS EoL date: April 2021" >> $FILENAME
 echo "https://www.ubuntu.com/info/release-end-of-life" >> $FILENAME
 echo "" >> $FILENAME
-echo "Debian < 7.0 is EoL, Debian 7.0 EoL date: May 2018 (LTS)" >> $FILENAME
+echo "Debian 7.0 EoL date: 31 May 2018" >> $FILENAME
+echo "Debian 8.0 EoL date: 30 June 2020" >> $FILENAME
 echo "https://wiki.debian.org/DebianReleases" >> $FILENAME
 echo "" >> $FILENAME
 echo Network Interfaces: >> $FILENAME
 echo =================== >> $FILENAME
-ifconfig | grep -B 100 lo | grep -v lo | grep -B 1 "inet " >> $FILENAME 
+ifconfig | grep -B 100 lo | grep -v lo | grep -B 1 "inet" >> $FILENAME 
 echo "" >> $FILENAME
 echo Routing Info: >> $FILENAME
 echo ============= >> $FILENAME
 route -n | grep -v Kernel >> $FILENAME
 echo "" >> $FILENAME
 echo "IP Forwarding Enabled? (1=Enabled, 0=Disabled):" >> $FILENAME
-echo ================================================ >> $FILENAME
+echo =============================================== >> $FILENAME
 if [ -f /etc/sysctl.conf ] ; then
 	cat /etc/sysctl.conf | grep ipv4.ip_forward >> $FILENAME
 fi
+echo "" >> $FILENAME
+echo "Network Time Protocol (NTP) Configuration:" >> $FILENAME
+echo "==========================================" >> $FILENAME
+timedatectl status >> $FILENAME
+echo "" >> $FILENAME
+echo "/etc/ntp.conf:" >> $FILENAME
+grep -e pool -e server /etc/ntp.conf >> $FILENAME
 echo "" >> $FILENAME
 echo netstat -an output: >> $FILENAME
 echo =================== >> $FILENAME
@@ -149,7 +165,7 @@ echo ======================= >> $FILENAME
 cat /etc/hosts >> $FILENAME
 echo "" >> $FILENAME
 echo "Listing Sensitive File & Folder Permissions:" >> $FILENAME
-echo ============================================= >> $FILENAME
+echo ============================================ >> $FILENAME
 if [ -f /etc/passwd ] ; then
 	ls -l /etc/passwd >> $FILENAME
 fi
@@ -186,11 +202,11 @@ echo ======================= >> $FILENAME
 awk -F: '{if ($3=="0") print$1}' /etc/passwd >> $FILENAME
 echo "" >> $FILENAME
 echo "List members of the wheel group (i.e. root users):" >> $FILENAME
-echo =================================================== >> $FILENAME
+echo ================================================== >> $FILENAME
 cat /etc/group | grep wheel >> $FILENAME
 echo "" >> $FILENAME
 echo "List Accounts with blank passwords (if any):" >> $FILENAME
-echo ============================================= >> $FILENAME
+echo ============================================ >> $FILENAME
 if [ -f /etc/shadow ] ; then
       echo `awk -F: '{if ($2=="") print $1}' /etc/shadow` >> $FILENAME
 else
@@ -224,11 +240,11 @@ done
 rm .find_tmp
 echo "" >> $FILENAME
 echo "Listing /etc/hosts.allow configuration (if populated):" >> $FILENAME
-echo ======================================================= >> $FILENAME
+echo ====================================================== >> $FILENAME
 egrep -v '^.{0}#' /etc/hosts.allow >> $FILENAME
 echo "" >> $FILENAME
 echo "Listing /etc/hosts.deny configuration (if populated):" >> $FILENAME
-echo ====================================================== >> $FILENAME
+echo ===================================================== >> $FILENAME
 egrep -v '^.{0}#' /etc/hosts.deny >> $FILENAME
 echo "" >> $FILENAME
 echo "Listing SELinux Configuration (if present):" >> $FILENAME
@@ -238,7 +254,7 @@ if [ -f /etc/selinux/config ] ; then
 fi
 echo "" >> $FILENAME
 echo "Listing /etc/hosts.equiv file (if present):" >> $FILENAME
-echo ============================================ >> $FILENAME
+echo =========================================== >> $FILENAME
 if [ -f /etc/hosts.equiv ] ; then
 	cat /etc/hosts.equiv >> $ FILENAME
 fi
@@ -258,7 +274,7 @@ done
 rm .rhosts_tmp
 echo "" >> $FILENAME
 echo "Listing User's .ssh file permissions (if present):" >> $FILENAME
-echo =================================================== >> $FILENAME
+echo ================================================== >> $FILENAME
 find /home -type d -name .ssh > .ssh_tmp
 for k in `cat .ssh_tmp`
 do
@@ -272,7 +288,7 @@ done
 rm .ssh_tmp
 echo "" >> $FILENAME
 echo "Listing FTP User Permissions (if any):" >> $FILENAME
-echo ======================================= >> $FILENAME
+echo ====================================== >> $FILENAME
 if [ -f /etc/ftpusers ] ; then
 	cat /etc/ftpusers >> $FILENAME
 fi 
@@ -284,23 +300,23 @@ if [ -f /etc/vsftpd/vsftpd.conf ] ; then
 fi
 echo "" >> $FILENAME
 echo "Listing NFS Exports (if any):" >> $FILENAME
-echo =============================== >> $FILENAME
+echo ============================== >> $FILENAME
 if [ -f /etc/exports ] ; then
       cat /etc/exports >> $FILENAME
 fi
 echo "" >> $FILENAME
 echo "Listing SNMP Configuration (if any):" >> $FILENAME
-echo ===================================== >> $FILENAME
+echo ==================================== >> $FILENAME
 if [ -f /etc/snmp/snmpd.conf ] ; then
 	cat /etc/snmp/snmpd.conf >> $FILENAME
 fi
 echo "" >> $FILENAME
 echo "Listing iptables configuration:" >> $FILENAME
-echo ================================ >> $FILENAME
+echo =============================== >> $FILENAME
 iptables -L >> $FILENAME
 echo "" >> $FILENAME
 echo "Listing all System processes:" >> $FILENAME
-echo =============================== >> $FILENAME
+echo ============================= >> $FILENAME
 ps -ef >> $FILENAME
 echo "" >> $FILENAME
 if [ -f .files_tmp ] ; then 
@@ -308,17 +324,17 @@ if [ -f .files_tmp ] ; then
 	rm .files_tmp
 fi
 echo "" >> $FILENAME
-echo "Searching for DirtyCOW source/compiled exploit (no output = not found)" >> $FILENAME
-echo ========================================================================= >> $FILENAME
+echo "Searching for DirtyCOW source/compiled exploit (no output = not found):" >> $FILENAME
+echo ======================================================================= >> $FILENAME
 for f in $(find /home/ -type f -size -300 2> /dev/null); do if [[ $(egrep "/proc/(self|%d)/(mem|maps)" "$f") != "" ]];then m=$(stat -c %y "$f"); echo "Contains DirtyCOW string: $f MOD_DATE: $m"; fi; done; >> $FILENAME
 #Credit=Neo23x0
 echo "" >> $FILENAME
 echo Kernel Version: >> $FILENAME
-echo ================ >> $FILENAME
+echo =============== >> $FILENAME
 uname -a >> $FILENAME
 echo "" >> $FILENAME
 echo "Kernel versions < those listed below ARE vulnerable to DirtyCow:" >> $FILENAME
-echo ================================================================= >> $FILENAME
+echo ================================================================ >> $FILENAME
 echo "4.8.0-26.28 for Ubuntu 16.10" >> $FILENAME
 echo "4.4.0-45.66 for Ubuntu 16.04 LTS" >> $FILENAME
 echo "3.13.0-100.147 for Ubuntu 14.04 LTS" >> $FILENAME
@@ -328,7 +344,7 @@ echo "3.2.82-1 for Debian 7" >> $FILENAME
 echo "4.7.8-1 for Debian unstable" >> $FILENAME
 echo "" >> $FILENAME
 echo "RHEL DirtyCOW check:" >> $FILENAME
-echo ====================== >> $FILENAME
+echo ==================== >> $FILENAME
 #RED="\033[1;31m"
 #YELLOW="\033[1;33m"
 #GREEN="\033[1;32m"
