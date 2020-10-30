@@ -259,6 +259,20 @@ if [ -f /etc/hosts.equiv ] ; then
 	cat /etc/hosts.equiv >> $ FILENAME
 fi
 echo "" >> $FILENAME
+echo "Listing User's .netrc files (if present):" >> $FILENAME
+echo ========================================== >> $FILENAME
+find /home -type f -name .netrc > .netrc_tmp
+for m in `cat .netrc_tmp`
+do
+	TARGET=${m}
+	ls -l ${TARGET} >> $FILENAME
+	echo "" >> $FILENAME
+	echo "Contents of ${TARGET}:" >> $FILENAME
+	cat ${TARGET} >> $FILENAME
+	echo "" >> $FILENAME
+done
+rm .netrc_tmp
+echo "" >> $FILENAME
 echo "Listing User's .rhosts files (if present):" >> $FILENAME
 echo =========================================== >> $FILENAME
 find /home -type f -name .rhosts > .rhosts_tmp 
